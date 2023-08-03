@@ -8,11 +8,16 @@ base: "./",
 添加完以后完整的vite.config.js文件为:
 
 import { defineConfig } from 'vite'
+
 import vue from '@vitejs/plugin-vue'
 
-// https://vitejs.dev/config/
-export default defineConfig({
-	base: "./",
-	plugins: [vue()]
-})
 
+// https://vitejs.dev/config/
+
+export default defineConfig({
+
+  base: "./",
+ 
+  plugins: [vue()]
+ 
+}) 
