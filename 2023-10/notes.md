@@ -57,3 +57,41 @@ $(".test").click(function() {
 })
 ```
 
+新建(Create) 读取(Read) 更新(Update) 删除(Delete) 的操作称为(CRUD)
+
+
+
+戴兜blog
+
+https://im.daidr.me/
+
+
+
+
+
+MySQL数据库原理
+
+https://relph1119.github.io/mysql-learning-notes/#/
+
+
+
+JAVA知识体系
+
+https://pdai.tech/md/db/sql-lan/sql-lan.html
+
+
+
+| 操作符  |     说明     |
+| :-----: | :----------: |
+|    =    |     等于     |
+|    <    |     小于     |
+|    >    |     大于     |
+|  <> !=  |    不等于    |
+|  <=!>   |   小于等于   |
+|  >=!<   |   大于等于   |
+| BETWEEN | 在两个值之间 |
+| IS NULL |   为NULL值   |
+
+七天学会nodejs
+
+https://nqdeng.github.io/7-days-nodejs/
