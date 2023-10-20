@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>POST Form Data</title>
+  <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+</head>
+<body>
+   <form id="myForm">
+        <input type="text" name="name" placeholder="Name">
+        <!-- <input type="file" name="file" accept=".jpg, .png"> -->
+        <button type="button" id="submitBtn1">ajax請求</button>
+        <button type="button" id="submitBtn2">XMLHttpRequest請求</button>
+  </form>
+
+  <script>
+    // var formda = new FormData();
+    // formda.append('test', '1234');
+    // console.log(formda);
+    document.getElementById('submitBtn2').addEventListener('click', () => {
+        // 將表單數據轉換成FormData
+        var formData = new FormData(document.getElementById('myForm'));
+        var formDataObject = {};
+        // 遍歷FormData數據轉換成JSON格式
+        formData.forEach(function(value, key) {
+            formDataObject[key] = value;
+        });
+        var jsonString = JSON.stringify(formDataObject);
+        console.log(jsonString);
+        // 发送 POST 请求
+        // 需要安裝jquery, 這裡使用的是CDN
+        $.ajax({
+            type: 'POST',
+            // 指定你的 API 终端点
+            url: 'http://127.0.0.1:3000/insert',
+            // 将数据转换为 JSON 字符串
+            data: jsonString,
+            contentType: 'application/json',
+            // 請求成功執行的函數
+            success: function(response) {
+                console.log(response);
+            },
+            // 請求失敗
+            error: function(error) {
+                console.error('Error:', error);
+            },
+        });
+    })
+
+    document.getElementById('submitBtn1').addEventListener('click', () => {
+        // // 创建一个包含数据的对象
+        // var postData = {
+        // test: '1234',
+        // };
+
+        var formData = new FormData(document.getElementById('myForm'));
+        var formDataObject = {};
+        formData.forEach(function(value, key) {
+            formDataObject[key] = value;
+        });
+        var jsonString = JSON.stringify(formDataObject);
+        console.log(jsonString);
+
+        // 创建一个新的 XMLHttpRequest 对象
+        var xhr = new XMLHttpRequest();
+        var url = 'http://127.0.0.1:3000/insert';
+        var data = {
+            test: '1234',
+        };
+
+        // 将数据转换为 JSON 字符串
+        var jsonData = JSON.stringify(data);
+
+        // 配置 XMLHttpRequest
+        xhr.open('POST', url, true);
+        xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+        // 处理响应
+        xhr.onload = function () {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            var response = JSON.parse(xhr.responseText);
+            console.log(response);
+        } else {
+            console.error('Error:', xhr.status, xhr.statusText);
+        }
+        };
+
+        // 处理错误
+        xhr.onerror = function () {
+        console.error('Network error');
+        };
+
+        // 发送 POST 请求
+        xhr.send(jsonString);
+
+    });
+
+  </script>
+</body>
+</html>
