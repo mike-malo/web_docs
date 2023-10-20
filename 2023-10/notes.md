@@ -92,7 +92,23 @@ https://pdai.tech/md/db/sql-lan/sql-lan.html
 | BETWEEN | 在两个值之间 |
 | IS NULL |   为NULL值   |
 
+
+
 七天学会nodejs
 
 https://nqdeng.github.io/7-days-nodejs/
+
+
+
+## 今日笔记10.20
+
+nodejs电子书
+
+https://www.nodebeginner.org/index-zh-cn.html
+
+
+
+
+
+
 
