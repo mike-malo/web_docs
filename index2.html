@@ -1,74 +1,813 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>POST Form Data</title>
-  <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <title>加班申请</title>
+    <style>
+        body {
+            font-size: small;
+            user-select: none;
+        }
+
+        select {
+            /* width: 100px; */
+            padding: 1px;
+            font-size: 16px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            color: #333;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: #666;
+        }
+
+        select:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        select option {
+            background-color: #fff;
+            color: #333;
+        }
+
+        select option:hover {
+            background-color: #f5f5f5;
+            color: #000;
+        }
+        a.button {
+            display: inline-block;
+            padding: 2px 5px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            cursor: pointer;
+        }
+        a.button:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+        a.button:active {
+            background-color: #003d80;
+        }
+        th, td {
+            border: 1px solid black;
+        }
+        td {
+            flex-grow: 1;
+        }
+        /* tbody tr:nth-child(odd) {
+            background-color: #85c0ff;
+        }      */
+        tr {
+            background-color: #e0e0e0;
+            transition: background-color 0.1s, color 0.5s;
+        }
+        tr:hover {
+            /* background: linear-gradient(to right, #85c0ff, #e0e0e0); */
+            background-color: #85c0ff;
+            /* background-color: linear-gradient(to right, #85c0ff, #e0e0e0); */
+        }
+        /* #table-body td:nth-of-type(odd) {
+            background-color: #787878;
+        } */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+            display: none; /* 初始状态下隐藏 */
+            justify-content: center;
+            align-items: center;
+            text-align: left;
+        }
+        .login-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .card-mask{
+            width: 300px;
+            height: 500px;
+            perspective: 600px;
+            margin: 50px;
+        }
+        .card {
+            height: 100%;
+            outline: 4px solid;
+            border-radius: 8px;
+            /* position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            text-align: left; */
+        }
+
+        input[type="date"] {
+            appearance: none;
+            background-color: #fff;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            padding: 2px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        input[type="date"]:hover {
+            background-color: #f0f0f0;
+        }
+
+        input[type="date"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px #007bff;
+        }
+        textarea {
+            resize: none;
+            height: 70px;
+        }
+    </style>
+    <!-- <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script> -->
 </head>
 <body>
-   <form id="myForm">
-        <input type="text" name="name" placeholder="Name">
-        <!-- <input type="file" name="file" accept=".jpg, .png"> -->
-        <button type="button" id="submitBtn1">ajax請求</button>
-        <button type="button" id="submitBtn2">XMLHttpRequest請求</button>
-  </form>
 
-  <script>
+    <label id="staff_code">工号: </label>
+    <a class="button" id="showLogin">登录</a>
+    <a class="button" id="logout" style="display: none; color: red;">退出登录</a>
+    <a class="button" id="overreq">加班申请</a>
+    <a class="button" id="submitBtn3">查询</a>
+    <a class="button" id="check_confirm">确认完毕</a>
+    <a class="button" id="check_edit">编辑状态</a>
+
+    <div id="select_staff">
+
+    </div>
+
+    <!-- 加班申请 -->
+    <div class="login-overlay" id="formOverlay">
+        <!-- <div class="card-mask" > -->
+            <div class="login-container card" style="width: 500px; height: 300px;">
+                <form id="myForm">
+                    <!-- 测试用输入 -->
+                    <!-- <input type="text" name="name" placeholder="Name"> -->          
+                    <!-- <input type="file" name="file" accept=".jpg, .png"> -->
+                    <!-- <button type="button" id="submitBtn1">ajax請求</button> -->
+                    <!-- <button type="button" id="submitBtn2">XMLHttpRequest請求</button> -->
+                
+                    <!-- 选择日期 -->
+                    <label for="data">选择加班日期:</label>
+                    <input type="date" id="overdate" name="overdate">
+                    <br>
+                
+                    <label>选择加班类型:</label>
+                    <select name="type">
+                        <option value="1">加班-工作日</option>
+                        <option value="2">加班-周末</option>
+                        <option value="3">加班-节假日</option>
+                        <option value="4">直落-工作日</option>
+                        <option value="5">直落-周末</option>
+                        <option value="6">直落-节假日</option>
+                    </select>
+                    <br>
+                    <!-- 开始时间 -->
+                    <label for="timePicker1">打卡开始时间:</label>
+                    <input type="time" id="stime" name="stime" value="00:00">
+                    <br>
+
+                    <!-- 结束时间 -->
+                    <label for="timePicker2">打卡结束时间:</label>
+                    <input type="time" id="etime" name="etime" value="23:59">
+                    <br>
+
+                    <label>工时：</label><label id="workhours">0.0 小时</label>
+                    <br>
+                    
+                    <!-- 工作内容 -->
+                    <label>工作内容: </label><br>
+                    <textarea type="text" name="remark" placeholder="工作内容"></textarea>
+                    
+                    <a class="button" id="submitBtn4">提交</a>
+                    <a class="button" onclick="document.getElementById('formOverlay').style.display = 'none'">取消</a>
+                </form>
+            </div>
+        <!-- </div> -->
+    </div>
+    
+    <!-- <div>开始时间</div>
+    <select id="timePicker2" name="timePicker2">
+        <option value="19:00" disabled selected>选择开始时间</option>
+    </select>
+
+    <div>结束时间</div>
+    <select id="timePicker3" name="timePicker3">
+        <option value="21:30" disabled selected>选择结束时间</option>
+    </select> -->
+
+    <!-- 表格数据 -->
+    <table style="border-collapse: collapse;" >
+        <thead>
+            <tr id="table-head">
+
+            </tr>
+        </thead>
+        <tbody id="table-body">
+
+        </tbody>
+    </table>
+
+    <!-- 登录页面 -->
+    <div class="login-overlay" id="loginOverlay">
+        <div class="card-mask">
+            <div class="login-container card">
+                <h2>登录页面</h2>
+                <input type="text" id="staffCode" placeholder="输入工号">
+                <a class="button" id="login">登录</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="login-overlay" id="updateOverlay">
+        <div class="card-mask">
+            <div class="login-container card">
+                <h2>编辑页面</h2>
+                <form id="updataform">
+                    <!-- id -->
+                    <input id="updateid" name="id" style="display: none;">
+                    <!-- 工号 -->
+                    <label>工号:</label>
+                    <input type="text" id="updatestaffcode" name="staff_code" style="width: 50px;"><br><br>
+                    <!-- 选择日期 -->
+                    <label for="data">选择加班日期:</label>
+                    <input type="date" id="updateoverdate" name="overdate"><br><br>
+                    <!-- 开始时间 -->
+                    <label for="timePicker3">加班开始时间:</label>
+                    <input type="time" id="updatestime" name="stime" value="00:00"><br><br>
+                    <!-- 结束时间 -->
+                    <label for="timePicker4">加班结束时间:</label>
+                    <input type="time" id="updateetime" name="etime" value="23:59"><br><br>
+                    <label>工时：</label><label id="updateworkhours">0.0 小时</label><br><br>
+                    <label>工作内容:</label><br>
+                    <!-- 工作内容 -->
+                    <textarea type="text" id="updateremark" placeholder="工作内容" name="remark" style="word-wrap: break-word; height: 100px;"></textarea><br><br>
+                    <a class="button" id="updatedata">提交</a>
+                    <a class="button" id="updatecancel">取消</a>
+                </form>    
+            </div>
+        </div>
+    </div>
+
+    <script>
     // var formda = new FormData();
     // formda.append('test', '1234');
     // console.log(formda);
-    document.getElementById('submitBtn2').addEventListener('click', () => {
-        // 將表單數據轉換成FormData
-        var formData = new FormData(document.getElementById('myForm'));
-        var formDataObject = {};
-        // 遍歷FormData數據轉換成JSON格式
-        formData.forEach(function(value, key) {
-            formDataObject[key] = value;
-        });
-        var jsonString = JSON.stringify(formDataObject);
-        console.log(jsonString);
-        // 发送 POST 请求
-        // 需要安裝jquery, 這裡使用的是CDN
-        $.ajax({
-            type: 'POST',
-            // 指定你的 API 终端点
-            url: 'http://127.0.0.1:3000/insert',
-            // 将数据转换为 JSON 字符串
-            data: jsonString,
-            contentType: 'application/json',
-            // 請求成功執行的函數
-            success: function(response) {
-                console.log(response);
-            },
-            // 請求失敗
-            error: function(error) {
-                console.error('Error:', error);
-            },
-        });
+    
+    /**
+     * 使用jquery发送请求示例
+    **/
+    // document.getElementById('submitBtn2').addEventListener('click', () => {
+    //     // 將表單數據轉換成FormData
+    //     var formData = new FormData(document.getElementById('myForm'));
+    //     var formDataObject = {};
+    //     // 遍歷FormData數據轉換成JSON格式
+    //     formData.forEach(function(value, key) {
+    //         formDataObject[key] = value;
+    //     });
+    //     var jsonString = JSON.stringify(formDataObject);
+    //     console.log(jsonString);
+    //     // 发送 POST 请求
+    //     // 需要安裝jquery, 這裡使用的是CDN
+    //     $.ajax({
+    //         type: 'POST',
+    //         // 指定你的 API 终端点
+    //         url: 'http://127.0.0.1:3000/insert',
+    //         // 将数据转换为 JSON 字符串
+    //         data: jsonString,
+    //         contentType: 'application/json',
+    //         // 請求成功執行的函數
+    //         success: function(response) {
+    //             console.log(response);
+    //         },
+    //         // 請求失敗
+    //         error: function(error) {
+    //             console.error('Error:', error);
+    //         },
+    //     });
+    // })
+
+    /**
+     * 使用xmlhttprequest发送请求示例
+    **/
+
+    // document.getElementById('submitBtn1').addEventListener('click', () => {
+    //     // // 创建一个包含数据的对象
+    //     // var postData = {
+    //     // test: '1234',
+    //     // };
+
+    //     var formData = new FormData(document.getElementById('myForm'));
+    //     var formDataObject = {};
+    //     formData.forEach(function(value, key) {
+    //         formDataObject[key] = value;
+    //     });
+    //     var jsonString = JSON.stringify(formDataObject);
+    //     console.log(jsonString);
+
+    //     // 创建一个新的 XMLHttpRequest 对象
+    //     var xhr = new XMLHttpRequest();
+    //     var url = 'http://127.0.0.1:3000/insert';
+    //     var data = {
+    //         test: '1234',
+    //     };
+
+    //     // 将数据转换为 JSON 字符串
+    //     var jsonData = JSON.stringify(data);
+
+    //     // 配置 XMLHttpRequest
+    //     xhr.open('POST', url, true);
+    //     xhr.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+
+    //     // 处理响应
+    //     xhr.onload = function () {
+    //     if (xhr.status >= 200 && xhr.status < 300) {
+    //         var response = JSON.parse(xhr.responseText);
+    //         console.log(response);
+    //     } else {
+    //         console.error('Error:', xhr.status, xhr.statusText);
+    //     }
+    //     };
+
+    //     // 处理错误
+    //     xhr.onerror = function () {
+    //     console.error('Network error');
+    //     };
+
+    //     // 发送 POST 请求
+    //     xhr.send(jsonString);
+
+    // });
+
+    document.getElementById('overreq').addEventListener('click', () => {
+        document.getElementById('formOverlay').style.display = 'flex';
     })
 
-    document.getElementById('submitBtn1').addEventListener('click', () => {
-        // // 创建一个包含数据的对象
-        // var postData = {
-        // test: '1234',
-        // };
+    document.getElementById('submitBtn3').addEventListener('click', () => {
+        checkdata();
+    });
+
+    document.getElementById('submitBtn4').addEventListener('click', () => {
 
         var formData = new FormData(document.getElementById('myForm'));
         var formDataObject = {};
         formData.forEach(function(value, key) {
             formDataObject[key] = value;
         });
-        var jsonString = JSON.stringify(formDataObject);
-        console.log(jsonString);
+
+        // 向已有的formdata数据中添加计算后的工时
+        formDataObject.hours = workhoursval;
+
+        // 先检查cookie中的工号
+        formDataObject.staff_code = getCookie("staff_code");
+        var url = 'http://192.168.50.27:3000/insert';
+        var jsonData = JSON.stringify(formDataObject);
+
+        xhttp(url, jsonData, (res) => {
+            checkdata();
+            document.getElementById('formOverlay').style.display = 'none'
+        })
+    });
+
+    // 接收到的json数据以表格的形式展示在页面中
+    function tabledata(data) {
+        const tableHead = document.getElementById("table-head");
+        const tableBody = document.getElementById("table-body");
+        
+        tableHead.innerHTML = "";
+        tableBody.innerHTML = "";
+        
+        tableHead.innerHTML += `
+            <th>ID</th>
+            <th>工号</th>
+            <th>姓名</th>
+            <th>类型</th>
+            <th>日期</th>
+            <th>工时</th>
+            <th>开始时间</th>
+            <th>结束时间</th>
+            <th>备注</th>
+            <th>创建时间</th>
+            <th>编辑</th>
+        `;
+        
+        if (admin_status == true) {
+            tableHead.innerHTML += `
+                <th>删除</th>
+                <th>状态</th>
+            `;
+        }
+        // tableHead.innerHTML += "</tr>";
+
+        data.forEach(item => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <tr><td>${item.id}</td></tr>
+                <tr><td>${item.staff_code}</td></tr>
+                <tr><td>${item.staff_name}</td></tr>
+                <tr><td>${item.type}</td></tr>
+                <tr><td>${item.overdate.substring(0, 10)}</td></tr>
+                <tr><td>${item.hours}</td></tr>
+                <tr><td>${item.stime}</td></tr>
+                <tr><td>${item.etime}</td></tr>
+                <tr><td>${item.remark}</td></tr>
+                <tr><td>${item.ctime.substring(0, 10)}</td></tr>
+                <tr><td style="color: ${item.check_status ? 'write' : 'blue'}; cursor: pointer;" 
+                    onclick="${item.check_status ? '' : 'selectupdatebyid(' + item.id + ')'} ">${item.check_status ? '已编辑' : '编辑'}</td></tr>
+            `;
+            if (admin_status == true) {
+                row.innerHTML += `
+                <tr><td style="color: red; cursor: pointer;" onclick="deletebyid(${item.id})">删除</td></tr>
+                <tr><td><input type='checkbox' class='data-checkbox' data-id='${item.id}' data-check-status="${item.check_status ? '1':'0'}" ${item.check_status ? 'checked disabled' : ''}></td></tr>
+                `
+            };
+            row.innerHTML += "</tr>";
+            tableBody.appendChild(row);
+        })
+
+        // 1. 编辑确定
+        // 2. 编辑变灰
+        // 3. 重新编辑
+        // 4. 排到最下面
+        document.querySelectorAll('.data-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const id = checkbox.getAttribute('data-id');
+                const checkStatus = checkbox.getAttribute('data-check-status') === '1';
+                checkbox.setAttribute('data-check-status', checkStatus ? '0':'1');
+                document.getElementById("check_confirm").addEventListener('click', () => {
+                    var isChecked = 0;
+                    // if (checkbox.checked) {
+                    //     isChecked = 1;
+                    // }
+                    if (checkbox.getAttribute('data-check-status')) {
+                        isChecked = 1;
+                    }
+                    var url = 'http://192.168.50.27:3000/update';
+                    var data = {
+                        id: checkbox.getAttribute('data-id'),
+                        check_status: checkbox.getAttribute('data-check-status')
+                    }
+                    var jsonData = JSON.stringify(data);
+                    xhttp(url, jsonData, (res) => {
+                        
+                    })
+                    checkdata()
+                })
+            })
+        })
+        document.getElementById("check_edit").addEventListener('click', () => {
+            document.querySelectorAll('.data-checkbox').forEach(checkbox => {
+                checkbox.disabled = false;
+            })
+        })
+    }
+
+    /**
+     * 元素旋转
+    **/
+
+    const cardMask = document.querySelectorAll(".card-mask");
+    const card = document.querySelectorAll(".card");
+    // 元素旋转动画
+    cardMask.forEach((element, index) => {
+        element.addEventListener("mousemove", (e) => {
+            let { clientX: s, clientY: n} = e,
+            {
+                width: i,
+                height: r,
+                x: o,
+                y: l,
+            } = element.getBoundingClientRect();
+            const c = {
+                x: 15 - (Math.abs(n - l) / r) * 30,
+                y: -15 + (Math.abs(s - o) / i) * 30,
+            };
+            card[index].style.transform = "rotateX(".concat(c.x,"deg) rotateY(").concat(c.y, "deg)");
+        });
+
+        element.addEventListener("mouseleave", () => {
+            card[index].style.transform = "rotateX(0deg) rotateY(0deg)";
+        });
+    })
+    
+    const timePickerele1 = document.getElementById("stime");
+    const timePickerele2 = document.getElementById("etime");
+    const timePickerele3 = document.getElementById("updatestime");
+    const timePickerele4 = document.getElementById("updateetime");
+    const workhours = document.getElementById("workhours");
+    const updateworkhours = document.getElementById("updateworkhours");
+    var workhoursval = null;
+    var updateworkhoursval = null;
+    var staff_code = null;
+    var admin_status = false;
+    timePickerele1.addEventListener("input", function() {
+        validateTimeRange(timePickerele1, timePickerele2, workhours)
+    });
+    timePickerele2.addEventListener("input", function(){
+        validateTimeRange(timePickerele1, timePickerele2, workhours)
+    });
+    timePickerele3.addEventListener("input", function(){
+        validateTimeRange(timePickerele3, timePickerele4, updateworkhours)
+    });
+    timePickerele4.addEventListener("input", function(){
+        validateTimeRange(timePickerele3, timePickerele4, updateworkhours)
+    });
+
+    timePicker(timePickerele1);
+    timePicker(timePickerele2);
+    timePicker(timePickerele3);
+    timePicker(timePickerele4);
+    
+    // 时间选项
+    function timePicker(element) {
+        // 创建选项，从00:00到23:30
+        for (let hour = 0; hour <= 23; hour++) {
+            for (let minute = 0; minute < 60; minute += 30) {
+                const option = document.createElement("option");
+                const formattedHour = hour.toString().padStart(2, "0");
+                const formattedMinute = minute === 0 ? "00" : minute.toString();
+                option.value = formattedHour + ":" + formattedMinute;
+                option.textContent = formattedHour + ":" + formattedMinute;
+                element.appendChild(option);
+            }
+        }
+    }
+
+    // 时间判断
+    function validateTimeRange(value1, value2, element) {
+        const startTime = value1.value;
+        const endTime = value2.value;
+
+        // if (startTime >= endTime) {
+        //     alert("结束时间必须大于开始时间");
+        //     // 清空输入框并设置默认值
+        //     value1.value = "19:00";
+        //     value2.value = "21:30";
+        // }
+        var time = calculateDuration(startTime, endTime);
+        element.value = time;
+        workhoursval = time;
+        updateworkhoursval = time;
+        element.innerHTML = time + " 小时";
+    }
+
+    // 检查是否存在名为 "staff_code" 的 Cookie
+    function checkCookie() {
+        staffCode = getCookie("staff_code");
+        staff_code = staffCode;
+        if (staffCode != "") {
+            // 如果 Cookie 存在，将用户重定向到主页面
+            // window.location.href = "index2.html";
+            
+            // 检查用户是否为管理员
+            checkAdmin(staffCode);
+
+            // hideLogin();
+
+            document.getElementById("showLogin").style.display = "none"; // 隐藏登录按钮
+            document.getElementById("logout").style.display = "inline-block"; // 显示退出登录按钮
+
+            // document.getElementById("loginOverlay").style.display = "none";
+
+            document.getElementById("staff_code").innerHTML += staffCode;
+            checkstaff(staffCode);
+            checkdata();
+        } else {
+            // 如果 Cookie 不存在，提示用户输入工号
+            // var staffCode = prompt("请输入您的工号:");
+            // 显示登录页面
+            document.getElementById("loginOverlay").style.display = "flex";
+        };
+    };
+
+    // 检测是否是管理员(查询员工)
+    function checkAdmin(staffCode) {
+        if (staffCode == "04857") {
+            document.getElementById("staff_code").innerHTML = " 管理员 工号: ";
+            document.getElementById("check_confirm").style.display = 'initial';
+            document.getElementById("check_edit").style.display = 'initial';
+            admin_status = true;
+            
+            var url = 'http://192.168.50.27:3000/query_staff';
+            var jsonData = null;
+            
+            xhttp(url, jsonData, (res) => {
+                let itemHTML = '选择员工：<select id="seleted_value"><option value="">选择</option>'
+                res.forEach((item) => {
+                    itemHTML += `<option value="${item.staff_code}">${item.staff_name}</option>`;
+                })
+                itemHTML += "</select>";
+
+                itemHTML += "<input type='date' id='datePicker'>"
+
+                document.getElementById("select_staff").innerHTML += itemHTML;
+
+                var data = {};
+                var url = 'http://192.168.50.27:3000/query';
+                document.getElementById("seleted_value").addEventListener("change", function() {
+                    data.staff_code = this.value;
+                    var jsonData = JSON.stringify(data);
+                    xhttp(url, jsonData, (res) => {
+                        // console.log(jsonData)
+                        tabledata(res)
+                    })
+                });
+
+                document.getElementById("datePicker").addEventListener("change", function () {
+                    data.overdate = document.getElementById("datePicker").value;
+                    var jsonData = JSON.stringify(data);
+                    xhttp(url, jsonData, (res) => {
+                        // console.log(jsonData)
+                        tabledata(res)
+                    })
+                });
+                
+
+            })
+        } else {
+            document.getElementById("check_confirm").style.display = 'none';
+            document.getElementById("check_edit").style.display = 'none';
+        }
+    }
+
+    // 获取 Cookie 值
+    function getCookie(cookieName) {
+        var name = cookieName + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var cookieArray = decodedCookie.split(';');
+        for (var i = 0; i < cookieArray.length; i++) {
+            var cookie = cookieArray[i];
+            while (cookie.charAt(0) == ' ') {
+                cookie = cookie.substring(1);
+            }
+            if (cookie.indexOf(name) == 0) {
+                return cookie.substring(name.length, cookie.length);
+            }
+        }
+        return "";
+    }
+
+    // 设置 Cookie (将工号存储为cookie)
+    function setCookie(cookieName, cookieValue, days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        var expires = "expires=" + date.toUTCString();
+        document.cookie = cookieName + "=" + cookieValue + "; " + expires + "; path=/";
+    }
+
+    // 删除数据
+    function deletebyid(id) {
+        let result = confirm("你确定要删除这条记录吗?");
+        if (result) {
+            var url = 'http://192.168.50.27:3000/delete';
+            var data = {
+                id: id,
+            };
+            // 将数据转换为 JSON 字符串
+            var jsonData = JSON.stringify(data);
+
+            xhttp(url, jsonData, (res) => {
+                checkdata();
+            })
+        }
+    }
+
+    // 请求要编辑的数据
+    function selectupdatebyid(id) {
+        // 显示编辑页面
+        document.getElementById("updateOverlay").style.display = "flex";
 
         // 创建一个新的 XMLHttpRequest 对象
         var xhr = new XMLHttpRequest();
-        var url = 'http://127.0.0.1:3000/insert';
+        var url = 'http://192.168.50.27:3000/query';
         var data = {
-            test: '1234',
+            id: id,
         };
-
         // 将数据转换为 JSON 字符串
         var jsonData = JSON.stringify(data);
+        xhttp(url, jsonData, (res) => {
+            var data = res[0];
+            var hours = calculateDuration(data.stime, data.etime);
+            updateworkhoursval = hours;
+            document.getElementById("updateid").value = id;
+            document.getElementById("updatestaffcode").value = data.staff_code;
+            document.getElementById("updateoverdate").value = data.overdate.substring(0, 10);
+            document.getElementById("updatestime").value = data.stime;
+            document.getElementById("updateetime").value = data.etime;
+            document.getElementById("updateworkhours").innerHTML = hours + " 小时";
+            document.getElementById("updateremark").value = data.remark;
+        })
+    }
+
+    // 提交编辑后的数据
+    document.getElementById("updatedata").addEventListener("click", function() {
+        document.getElementById('formOverlay').style.display = 'none';
+        document.getElementById("table-body").innerHTML = "";
+        var formData = new FormData(document.getElementById('updataform'));
+        var formDataObject = {};
+        formData.forEach(function(value, key) {
+            formDataObject[key] = value;
+        });
+        formDataObject.hours = updateworkhoursval;
+        var jsonData = JSON.stringify(formDataObject);
+        var url = 'http://192.168.50.27:3000/update';
+        
+        console.log(jsonData)
+        xhttp(url, jsonData, (res) => {
+        })
+
+        document.getElementById("updateOverlay").style.display = "none";
+        checkdata();
+    })
+
+    // 隐藏登录页面
+    function hideLogin() {
+        document.getElementById("loginOverlay").style.display = "none"; // 隐藏登录页面
+        document.getElementById("showLogin").style.display = "none"; // 隐藏登录按钮
+        document.getElementById("logout").style.display = "inline-block"; // 显示退出登录按钮
+    }
+
+    // 计算时长, 向下取整到0.5小时的间隔
+    function calculateDuration(startTime, endTime) {
+        // 解析时间字符串为 Date 对象
+        const startDate = new Date(`2023-01-01T${startTime}`);
+        const endDate = new Date(`2023-01-01T${endTime}`);
+        
+        // 计算时间差，单位为毫秒
+        const timeDiff = endDate - startDate;
+        
+        // 转换为分钟
+        const durationMinutes = timeDiff / (1000 * 60);
+        
+        // 向下取整到 30 分钟间隔
+        const roundedMinutes = Math.floor(durationMinutes / 30) * 30;
+        
+        // 转换回小时
+        const durationHours = roundedMinutes / 60;
+        
+        return durationHours;
+    }
+
+    // 在页面加载时检查 Cookie
+    window.onload = checkCookie();
+
+    // 查询数据
+    function checkdata(req = null) {
+        document.getElementById("table-head").innerHTML = "";
+        document.getElementById("table-body").innerHTML = "";
+        var url = 'http://192.168.50.27:3000/query';
+        if (admin_status) {
+            var data = {};
+            if (req) {
+                var data = {};
+            }
+        } else {
+            var data = {
+                staff_code: staff_code
+            }
+        }
+        var jsonData = JSON.stringify(data);
+
+        xhttp(url, jsonData, (res) => {
+            tabledata(res);
+        })
+    }
+
+    // 查询员工
+    function checkstaff(staffCode) {
+        var url = 'http://192.168.50.27:3000/query_staff';
+        var data = {
+            staff_code: staffCode,
+        };
+        var jsonData = JSON.stringify(data);
+        xhttp(url, jsonData, (res) => {
+            document.getElementById("staff_code").innerHTML += "  姓名: " + res[0].staff_name;
+        })
+    }
+
+    // xhttp请求
+    function xhttp(url, data, callback) {
+        // 创建一个新的 XMLHttpRequest 对象
+        var xhr = new XMLHttpRequest();
+        var url = url;
 
         // 配置 XMLHttpRequest
         xhr.open('POST', url, true);
@@ -76,24 +815,73 @@
 
         // 处理响应
         xhr.onload = function () {
-        if (xhr.status >= 200 && xhr.status < 300) {
-            var response = JSON.parse(xhr.responseText);
-            console.log(response);
-        } else {
-            console.error('Error:', xhr.status, xhr.statusText);
-        }
+            if (xhr.status >= 200 && xhr.status < 300) {
+                var response = JSON.parse(xhr.responseText);
+                callback(response)
+            } else {
+                console.error('Error:', xhr.status, xhr.statusText);
+            }
         };
 
         // 处理错误
         xhr.onerror = function () {
-        console.error('Network error');
+            console.error('Network error');
         };
-
         // 发送 POST 请求
-        xhr.send(jsonString);
+        xhr.send(data);
+    }
 
+    // checkCookie();
+
+    // 退出登录
+    document.getElementById("logout").addEventListener("click", function() {
+        // 在这里可以清除Cookie或LocalStorage中的工号信息
+        document.cookie = "staff_code=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        admin_status = false;
+        document.getElementById("showLogin").style.display = "inline-block"; // 显示登录按钮
+        document.getElementById("logout").style.display = "none"; // 隐藏退出登录按钮
+        document.getElementById("loginOverlay").style.display = "flex"; // 显示登录页面
+        document.getElementById("table-body").innerHTML = '';
+        document.getElementById("staff_code").innerHTML = '工号: '
+        document.getElementById("select_staff").innerHTML = '';
+        document.getElementById("check_confirm").style.display = 'none';
+        document.getElementById("check_edit").style.display = 'none';
     });
 
-  </script>
+    // 登录点击事件
+    document.getElementById("login").addEventListener("click", function() {
+        staff_code_login = document.getElementById("staffCode").value;
+        
+        if (staff_code_login != "") {
+            // 存储工号到 Cookie，有效期设置为 30 天
+            setCookie("staff_code", staff_code_login, 30);
+            staff_code = getCookie("staff_code");
+            checkAdmin(staff_code_login);
+            checkstaff(staff_code_login);
+            // 用户输入工号后，隐藏登录页面, 并显示结果 
+            hideLogin();
+            checkdata();
+        } else {
+            alert("需要输入工号")
+        }
+        document.getElementById("staff_code").innerHTML += staff_code_login;
+    })
+
+    // 取消编辑事件
+    document.getElementById("updatecancel").addEventListener("click", function() {
+        document.getElementById("updateOverlay").style.display = "none";
+        // checkdata();
+    })
+    
+    // 默认显示今日日期
+    var today = new Date();
+    var yyyy = today.getFullYear();
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); // 获取月份，需要补零
+    var dd = String(today.getDate()).padStart(2, '0'); // 获取日期，需要补零
+    var formattedDate = yyyy + '-' + mm + '-' + dd;
+
+    document.getElementById('overdate').value = formattedDate;
+
+    </script>
 </body>
 </html>
