@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>主页面</title>
+    <style>
+        body {
+            user-select: none;
+        }
+        /* 经典样式-用于弹窗 */
+        /* 样式用于覆盖登录页面 */
+        .login_overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* 半透明背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        .login_container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 经典样式-按钮 */
+        a.button {
+            display: inline-block;
+            padding: 2px 5px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+            cursor: pointer;
+        }
+        a.button:hover {
+            background-color: #0056b3;
+            color: #fff;
+        }
+        a.button:active {
+            background-color: #003d80;
+        }
+        a.cancel {
+            background-color: #ff3333;
+            border: 1px solid red;
+        }
+        a.cancel:hover {
+            background-color: #ff1111;
+        }
+        a.cancel:active {
+            background-color: #ff0000;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            /* margin: 20px; */
+        }
+
+        th, td {
+            border: 1px solid black;
+            text-align: center;
+            padding: 5px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        th:nth-child(-n+5), td:nth-child(-n+5) {
+            white-space: nowrap;
+        }
+
+        @font-face {
+            font-family: 'STKaiti';
+            src: url('src/font.ttf') format('truetype');
+        }
+
+        body {
+            /* font-family: 'STKaiti', serif; */
+            /* font-size: large; */
+        }
+
+        .font_body {
+            font-family: 'STKaiti', serif !important;
+        }
+
+        .score-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 150px;
+            font-size: 24px;
+        }
+
+        .score-button {
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .score-display {
+            background-color: #f5f5f5;
+            padding: 10px 20px;
+        }
+        .score_cell {
+            /* display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%; */
+            border: 1px solid black;
+
+        }
+        .score_cell_toggle {
+            justify-content: space-between;
+        }
+
+        /* .subtract {
+            margin-left: 5px;
+            width: 15px;
+            display: none !important;
+        }
+        .subtract_toggle {
+            display: flex !important;
+        }
+
+        .add {
+            margin-right: 5px;
+            width: 15px;
+            display: none !important;
+        }
+        .add_toggle {
+            display: flex !important;
+        } */
+
+        .subtract {
+            margin-left: 5px;
+            width: 15px;
+        }
+        .add {
+            margin-right: 5px;
+            width: 15px;
+        }
+
+        @media print {
+            body {
+                font-family: 'STKaiti', serif;
+                /* font-size: large; */
+            }
+            .print_hide {
+                display: none;
+            }
+            /* table {
+                page-break-inside: auto;
+            }
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            } */
+            th, td {
+                border: 1px solid black;
+                padding: 8px;
+            }
+            @page {
+                size: A4 landscape;
+                /* margin: 50px 0 0 0; */
+                padding: 50px 0 0 0;
+                @top-center {
+                    content: element(assess_title);
+                }
+                @bottom-center {
+                    content: element(signatures);
+                }
+            }
+            #signatures {
+                display: none;
+            }
+        }
+
+        #signatures {
+            display: flex;
+            justify-content: space-around;
+            padding-top: 20px;
+            /* align-items: center;
+            height: 100vh;
+            flex-direction: column; */
+        }
+        
+        /* 被選擇的樣式 */
+        .selected {
+            background-color: #d1d1d1;
+        }
+
+        textarea {
+            resize: none;
+            height: 70px;
+        }
+
+    </style>
+</head>
+<body class="body">
+    <div class="print_hide">
+        <!-- 主页面内容 -->
+        <a class="button" id="logout">退出登錄</a>
+
+        <!-- 顯示日期 -->
+        <span id="showdate"></span>
+
+        <!-- 修改數據 -->
+        <!-- <a class="button" id="update_data">修改數據</a> -->
+        <span><a class="button" id="toggle_font">切換字體</a></span>
+        <span><a class="button" onclick="location.reload()">刷新</a></span>
+        <span><a class="button" id="fs_btn">全屏</a></span>
+        <span><a class="button" id="print_btn">打印</a></span>
+
+        <!-- 登录页面覆盖 -->
+        <div class="login_overlay" id="loginOverlay">
+            <form class="login_container" id="login_data">
+                <div style="font-size: 30px;">考核評分系統</div>
+                <input type="text" id="username" name="username" placeholder="输入工号"><br>
+                <input type="password" id="password" name="password" placeholder="输入密码"><br>
+                <a class="button" id="login">登錄</a>
+            </form>
+        </div>
+        
+        <!-- <div style="text-align: center; font-size: 40px; user-select: none;">產量獎行政部分考核評分表(員工1)</div>
+        <div style="text-align: center; font-size: 40px; user-select: none;">產量獎行政部分考核評分表(組長2)</div>
+        <div style="text-align: center; font-size: 40px; user-select: none;">產量獎行政部分考核評分表(管理3)</div> -->
+
+        <div id="userinfo"></div>
+    </div>
+    
+    <!-- 修改數據彈窗 -->
+    <div class="login_overlay" id="edit_overlay" style="display: none;">
+        <form class="login_container">
+            <div style="font-size: 30px;">評分</div>
+
+            <div id="name_text" style="display: flex; padding: 10px;">被評分人: </div>
+            <div id="th_text" style="display: flex; padding: 10px;">評分內容: </div>
+
+            <div style="display: flex; padding: 10px;">
+                <span>扣分: </span>
+                <div style="padding-left: 75px;">
+                    <a class="subtract button" id="edit_sub">-</a>
+                    <span id="edit_score">0</span>
+                    <a class="add button" id="edit_add">+</a>
+                </div>
+            </div>
+
+            <!-- <input > -->
+            <div style="display: flex; padding: 10px;">
+                <span>備註: </span>
+                <div style="padding-left: 40px;">
+                    <textarea type="text" placeholder="備註內容" id="score_remark"></textarea>
+                </div>
+            </div>
+            
+            <a class="button" id="update_data">提交</a>
+            <a class="button cancel" id="cancel_edit">關閉</a>
+
+            <table id="point_log" style="margin-top: 10px;">
+                
+            </table>
+        </form>
+
+    </div>
+
+    <!-- 標題 -->
+    <div style="text-align: center; font-size: 40px; user-select: none; padding: 10px;" id="assess_title"></div>
+
+    <!-- 表格數據 -->
+    <table id="table_data" style="padding-top: 10px;"></table>
+
+    <!-- <div class="score-container">
+        <a class="button">-</a>
+        <div class="score-display" id="score">0</div>
+        <a class="button" id="increment">+</a>
+    </div> -->
+
+    <!-- 簽名區域-废用 -->
+    <!-- <div id="signatures">
+        <span class="signature">
+            製錶: ___________________
+        </span>
+        <span class="signature">
+            審核: ___________________
+        </span>
+        <span class="signature">
+            批示: ___________________
+        </span>
+    </div> -->
+
+    <script>
+
+        // 登录操作
+        document.getElementById("login").addEventListener("click", function() {
+            var formData = new FormData(document.getElementById("login_data"));
+            var formDataObject = {};
+            formData.forEach(function(value, key) {
+                formDataObject[key] = value;
+            });
+            var jsonData = JSON.stringify(formDataObject);
+            var url = '/oa2/assessment/json.php?task=login';
+            xhttp(url, formData, (res) => {
+                if (res.success) {
+                    document.getElementById("loginOverlay").style.display = "none";
+                    login_event();
+                } else {
+                    alert(res.msg);
+                }
+            })
+        });
+
+        // 登录成功后的操作
+        function login_event() {
+            var show_date = showDate();
+            document.getElementById("showdate").innerHTML = "日期：" + show_date;
+            var url = '/oa2/assessment/json.php?task=get_underling_point_by_leader';
+            xhttp(url, null, (res) => {
+                console.log(res)
+                tabledata(res)
+            })
+        }
+
+        // 查询cookie是否有登录记录
+        if (getCookie("caduid")) {
+            document.getElementById("loginOverlay").style.display = "none";
+            login_event();
+        }
+
+        // 获取 Cookie 值
+        function getCookie(cookieName) {
+            var name = cookieName + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var cookieArray = decodedCookie.split(';');
+            for (var i = 0; i < cookieArray.length; i++) {
+                var cookie = cookieArray[i];
+                while (cookie.charAt(0) == ' ') {
+                    cookie = cookie.substring(1);
+                }
+                if (cookie.indexOf(name) == 0) {
+                    return cookie.substring(name.length, cookie.length);
+                }
+            }
+            return "";
+        }
+
+        // xhttp请求
+        function xhttp(url, data, callback) {
+            // 创建一个新的 XMLHttpRequest 对象
+            var xhr = new XMLHttpRequest();
+            var url = url;
+
+            // 配置 XMLHttpRequest
+            xhr.open('POST', url, true);
+
+            // 处理响应
+            xhr.onload = function () {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var response = JSON.parse(xhr.responseText);
+                    callback(response)
+                } else {
+                    console.error('Error:', xhr.status, xhr.statusText);
+                }
+            };
+
+            // 处理错误
+            xhr.onerror = function () {
+                console.error('Network error');
+            };
+            // 发送 POST 请求
+            xhr.send(data);
+        }
+
+        // 退出登录
+        document.getElementById("logout").addEventListener("click", function() {
+            document.getElementById("loginOverlay").style.display = "flex";
+            document.getElementById("table_data").innerHTML = "";
+            var url = '/oa2/assessment/json.php?task=logout';
+            var data = null;
+            xhttp(url, null, (res) => {
+                console.log(res)
+            })
+        });
+
+        // 頁面切換全屏
+        document.getElementById("fs_btn").addEventListener("click", toggleFullscreen);
+
+        // 切换全屏函数
+        function toggleFullscreen() {
+            // 检查浏览器是否支持 Fullscreen API
+            if (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled) {
+                // 判断当前是否处于全屏状态
+                if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+                    // 退出全屏
+                    exitFullscreen();
+                } else {
+                    // 进入全屏
+                    enterFullscreen();
+                }
+            } else {
+                alert('您的浏览器不支持全屏功能。');
+            }
+        }
+
+        // 进入全屏函数
+        function enterFullscreen() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) {
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.mozRequestFullScreen) {
+                document.documentElement.mozRequestFullScreen();
+            } else if (document.documentElement.msRequestFullscreen) {
+                document.documentElement.msRequestFullscreen();
+            }
+        }
+
+        // 退出全屏函数
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+
+        // 顯示當前年月
+        function showDate() {
+            // 默认显示今日日期
+            var today = new Date();
+            var yyyy = today.getFullYear();
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); // 获取月份，需要补零
+            var dd = String(today.getDate()).padStart(2, '0'); // 获取日期，需要补零
+            var formattedDate = yyyy + '年' + mm + '月' + dd + '日';
+            return formattedDate;
+        }
+
+        // 設置表格數據
+        function tabledata(res) {
+            
+            // 顯示登錄基本信息
+            var userinfo = document.getElementById("userinfo");
+            var uinfo = "";
+            uinfo += `
+            <td>部門: ${res.uinfo.groups}</td>
+            <td>姓名: ${res.uinfo.name}</td>
+            <td>工號: ${res.uinfo.staff_code}</td>
+            <td>職位: ${res.uinfo.post_name}</td>
+            `;
+            userinfo.innerHTML = uinfo;
+
+            var assess_title = document.getElementById("assess_title");
+            assess_title.innerHTML = res.assess_title;
+
+            var table_data = document.getElementById("table_data");
+            table_data.innerHTML = "";
+            var table_th = "";
+            table_th += "<thead>"
+            
+            // 顯示表格標題 
+            res.ths.forEach(item => {
+                if (item.key.includes("assessment")) {
+                    table_th += `
+                    <th style="width: 100px;">${item.desc}</th>
+                    `
+                } else if (item.key.includes("total_point")) {
+                    table_th += `
+                        <th style="width: 40px;">${item.desc}</th>
+                    `;
+                } else {
+                    table_th += `
+                    <th>${item.desc}</th>
+                    `;
+                }
+            })
+
+            table_th += "</thead>"
+            table_data.innerHTML += table_th;
+            var table_tb = "";
+            table_tb += "<tbody>";
+            res.data.forEach(item1 => {
+                table_tb += "<tr>";
+                res.ths.forEach(item => {
+                    var str = item.key;
+                    if (str.includes("assessment")) {
+                        // table_tb += `
+                        // <td class="tb_cell" data-uid="${item1.uid}" data-key="${item.key}" onclick="showedit('${item1.uid}', '${item.key}', this)">
+                        //     <div class="score_cell" data-uid="${item1.uid}" data-key="${item.key}">
+                        //         <a class="subtract button" data-uid="${item1.uid}" data-key="${item.key}" onclick="event.stopPropagation();">-</a>
+                        //         <span class="score-value" data-uid="${item1.uid}" data-key="${item.key}">${item1[item.key]}</span>
+                        //         <a class="add button" data-uid="${item1.uid}" data-key="${item.key}" onclick="event.stopPropagation();">+</a>
+                        //     </div>
+                        // </td>
+                        // `;
+                        table_tb += `
+                        <td class="tb_cell" data-uid="${item1.uid}" data-key="${item.key}" onclick="showedit('${item1.uid}', '${item.key}', this)">
+                            <span class="score-value" data-uid="${item1.uid}" data-key="${item.key}">${item1[item.key]}</span>
+                        </td>
+                        `;
+                    } else if (str.includes("total_point")) {
+                        table_tb += `
+                        <td>
+                            <span class="total_point" data-uid="${item1.uid}" data-key="${item.key}" style="text-align: center; ">${item1[item.key]}</span>
+                        </td>
+                        `;
+                    } else if (str.includes("avatar")){
+                        table_tb += `
+                        <td style="padding: 0px;">
+                            <div style="display: flex; justify-content: center;"><img src="${item1.avatar}" style="width: 50px; display: flex;"></div>
+                        </td>
+                        `;
+                    } else {
+                        table_tb += `<td>${item1[item.key]}</td>`;
+                    }
+                });
+                table_tb += "</tr>";
+            })
+            table_tb += "</tbody>";
+            table_data.innerHTML += table_tb;
+
+            checkscorezero();
+            checktotalzero();
+
+            // document.querySelectorAll(".add").forEach((button) => {
+            //     button.addEventListener("click", (event) => {
+            //         const uid = button.getAttribute("data-uid");
+            //         const key = button.getAttribute("data-key");
+            //         updateScore(uid, key, 0.5);
+            //     });
+            // });
+            
+            // document.querySelectorAll(".subtract").forEach((button) => {
+            //     button.addEventListener("click", (event) => {
+            //         const uid = button.getAttribute("data-uid");
+            //         const key = button.getAttribute("data-key");
+            //         updateScore(uid, key, -0.5);
+            //     })
+            // });
+
+            // // 为包含表格的父元素添加点击事件代理
+            // document.getElementById("table_data").addEventListener("click", function(event) {
+            //     // 获取单击的元素
+            //     const target = event.target;
+                
+            //     // 检查是否单击的元素或其祖先中包含了某个选择器
+            //     if (!target.closest(`.tb_cell`)) {
+            //         // 如果不包含某元素的选择器，执行特定的代码
+            //         // console.log(`${item1.uid},${item.key}`);
+            //         console.log("good")
+            //     }
+            // });
+        }
+
+        // 檢查表格中的數據是否為0
+        function checkscorezero() {
+            document.querySelectorAll(".score-value").forEach(item => {
+                if (!parseFloat(item.textContent)) {
+                    item.style.display = "none"
+                } else {
+                    item.style.display = "contents"
+                }
+            })
+        }
+        
+        // 檢查總數的數據是否為0
+        function checktotalzero() {
+            document.querySelectorAll(".total_point").forEach(item => {
+                if (!parseFloat(item.textContent)) {
+                    // console.log(parseFloat(item.textContent))
+                    // console.log(item.textContent)
+                    item.style.display = "none"
+                } else {
+                    // console.log("check")
+                    item.style.display = "block"
+                }
+            })
+        }
+
+        // 高亮所在行和列
+        function highlightRowAndColumn(cell) {
+            // 清除之前的选择
+            clearSelection();
+
+            // 获取单元格的行和列索引
+            var rowIndex = cell.parentNode.rowIndex;
+            var cellIndex = cell.cellIndex;
+            var table_data = document.getElementById("table_data");
+
+            // 获取表格的行数和列数
+            var rowCount = table_data.rows.length;
+            var colCount = table_data.rows[0].cells.length;
+
+            // 高亮所在行
+            // for (var i = 0; i < colCount; i++) {
+            //     table_data.rows[rowIndex].cells[i].classList.add("selected");
+            // }
+
+            // 高亮所在列
+            // for (var j = 0; j < rowCount; j++) {
+            //     table_data.rows[j].cells[cellIndex].classList.add("selected");
+            // }
+
+            // 高亮所在行以上的列
+            for (var i = 0; i <= cellIndex; i++) {
+                table_data.rows[rowIndex].cells[i].classList.add("selected");
+            }
+
+            // 高亮所在列以上的行
+            for (var j = 0; j <= rowIndex; j++) {
+                table_data.rows[j].cells[cellIndex].classList.add("selected");
+            }
+        }
+
+        // 清除之前的选择
+        function clearSelection() {
+            var table_data = document.getElementById("table_data");
+            var selectedCells = table_data.getElementsByClassName("selected");
+
+            while (selectedCells.length > 0) {
+                selectedCells[0].classList.remove("selected");
+            }
+        }
+
+        // 彈窗-評分
+        function showedit(uid, key, cell) {
+
+            document.getElementById("edit_score").innerHTML = "0";
+            // console.log(uid, key)
+            document.getElementById("edit_overlay").style.display = "flex";
+            highlightRowAndColumn(cell);
+            var table_data = document.getElementById("table_data");
+            var th_text = table_data.rows[0].cells[cell.cellIndex].innerText;
+            var name_text = table_data.rows[cell.parentNode.rowIndex].cells[2].innerText;
+            // console.log(cell.parentNode.rowIndex)
+            document.getElementById("th_text").innerHTML += th_text;
+            document.getElementById("name_text").innerHTML += name_text;
+
+            var data_log = new FormData();
+            data_log.append('userid', uid);
+            data_log.append('assess_type', key);
+
+            var url_log = '/oa2/assessment/json.php?task=get_point_log';
+            xhttp(url_log, data_log, (res) => {
+                // console.log(res)
+                
+                var point_log_table = document.getElementById("point_log").innerHTML;
+                point_log_table = "";
+
+                var point_log_text = 
+                `<thead>
+                    <tr>
+                        <th style='width: 20px;'>扣分記錄</th>
+                        <th style='width: 20px;'>扣分</th>
+                        <th>備註</th>
+                        <th>评分日期</th>
+                        <th>撤銷</th>
+                    <tr>
+                </thead>`;
+
+                res.logs.forEach((i, j)=>{
+                    index_show = j + 1;
+                    index = j;
+                    point_log_text += 
+                    `<tbody id="tbody_data">
+                        <tr id="row_${index}">
+                                <td>${index_show}</td>
+                                <td>${i.point}</td>
+                                <td>${i.remark}</td>
+                                <td>${i.ctime}</td>
+                            <td data-index="${index}" onclick="log_delete(${i.id}, ${index})" style="color: red;">撤銷</td>
+                        </tr>
+                    </tbody>`;
+                })
+                document.getElementById("point_log").innerHTML = point_log_text;
+            });
+
+            // 提交份數
+            document.getElementById("update_data").addEventListener("click", () => {
+
+                const edit_remark = document.getElementById("score_remark").value
+                if (edit_remark.length == 0) {
+                    alert("提交的備註不能為空");
+                    return;
+                }
+                const edit_score = parseFloat(document.getElementById("edit_score").textContent)
+                if (edit_score == 0) {
+                    alert("扣分不能為0");
+                    return;
+                }
+                console.log(uid, key, edit_remark, edit_score);
+
+                var data = new FormData();
+                data.append('userid', uid);
+                data.append('assess_type', key);
+                data.append('point', edit_score);
+                data.append('remark', edit_remark);
+
+                var url = '/oa2/assessment/json.php?task=submit_point_single';
+                xhttp(url, data, (res) =>{
+                    login_event();
+                    cancel_edit();
+                });
+            });
+        }
+
+        // 減分
+        document.getElementById("edit_sub").addEventListener("click", () => {
+            const currentScore = parseFloat(document.getElementById("edit_score").textContent) - 0.5;
+            document.getElementById("edit_score").innerHTML = currentScore;
+        });
+
+        // 加分
+        document.getElementById("edit_add").addEventListener("click", () => {
+            if (parseFloat(document.getElementById("edit_score").textContent) == 0) {
+                document.getElementById("edit_add").style.backgroundColor = "gray";
+                return;
+            }
+            const currentScore = parseFloat(document.getElementById("edit_score").textContent) + 0.5;
+            document.getElementById("edit_score").innerHTML = currentScore;
+        });
+
+        // 取消評分
+        document.getElementById("cancel_edit").addEventListener("click", () => {
+            cancel_edit();
+        })
+
+        // 取消編輯
+        function cancel_edit() {
+            document.getElementById("edit_overlay").style.display = "none";
+            clearSelection();
+            document.getElementById("th_text").innerHTML = "評分內容: ";
+            document.getElementById("name_text").innerHTML = "被評分人: ";
+            document.getElementById("score_remark").value = "";
+            login_event();
+        }
+
+        // 撤銷記錄
+        function log_delete(id, currentIndex) {
+            var data = new FormData();
+            data.append('logid', id);
+
+            var rowId = "row_" + currentIndex;
+            var rowToDelete = document.getElementById(rowId);
+
+            // for (var i  = currentIndex + 1; i <= res.logs.length; i++) {
+            //     var currentRow = document.getElementById("row_" + i);
+            //     if (currentRow) {
+            //         currentRow.querySelector("td:first-child").textContent = i - 1;
+            //         currentRow.id = "row_" + (i - 1);
+            //         currentRow.querySelector("[data-index]").setAttribute("data-index", i - 1);
+            //     }
+            // }
+
+            var url = '/oa2/assessment/json.php?task=delete_point_log';
+
+            xhttp(url, data, (res) => {
+                rowToDelete.parentNode.removeChild(rowToDelete);
+                return true
+            })
+        }
+
+        /**
+         * 更新數據
+         **/
+
+        // function updateScore(uid, key, change) {
+        //     console.log(`更新用户 ${uid} 的 ${key} 分数，变化值为 ${change}`);
+
+        //     const element = document.querySelector(`[data-uid="${uid}"][data-key="${key}"].score-value`);
+        //     const total_point = document.querySelector(`[data-uid="${uid}"].total_point`);
+
+        //     const currentScore = parseFloat(element.textContent);
+        //     console.log(total_point)
+
+        //     if (currentScore == 0 && change > 0) {
+        //         return;
+        //     }
+
+        //     const total_Score = parseFloat(total_point.textContent);
+
+        //     const totalScore = total_Score + change;
+        //     console.log(totalScore)
+        //     const newScore = currentScore + change;
+
+        //     var data = new FormData();
+        //     data.append('userid', uid);
+        //     data.append('assess_type', key);
+        //     data.append('point', newScore);
+
+        //     var url = '/oa2/assessment/json.php?task=submit_point_single';
+        //     xhttp(url, data, (res) =>{
+
+        //         var formDataObject = {};
+        //         data.forEach(function(value, key) {
+        //             formDataObject[key] = value;
+        //         });
+        //         var jsonData = JSON.stringify(formDataObject);
+
+        //         if (res.success) {
+        //             const element = document.querySelector(`.score-value[data-uid="${uid}"][data-key="${key}"]`);
+        //             console.log(element)
+        //             console.log(`.score-value[data-uid="${uid}"][data-key="${key}"]`)
+        //             if (element) {
+        //                 element.textContent = newScore;
+        //                 total_point.textContent = totalScore;
+        //                 console.log(total_point)
+        //                 console.log(newScore, totalScore);
+        //                 checktotalzero();
+        //             }
+        //         }
+        //     });
+        // }
+        
+        /**
+         * 修改數據
+         **/
+
+        // function showedit(uid, key) {
+        //     // 清除樣式
+        //     document.querySelectorAll(`.score_cell`).forEach(i => {
+        //         i.classList.remove("score_cell_toggle");
+        //     })
+        //     // 添加樣式
+        //     document.querySelector(`[data-uid="${uid}"][data-key="${key}"].score_cell`).classList.add("score_cell_toggle")
+        //     // 針對點擊的按鈕添加樣式
+        //     document.querySelectorAll('.subtract').forEach(item => {
+        //         if (item.parentNode.querySelector(`[data-uid="${uid}"][data-key="${key}"]`)) {
+        //             item.classList.add("subtract_toggle");
+        //         } else {
+        //             item.classList.remove("subtract_toggle");
+        //         }
+        //     });
+        //     document.querySelectorAll('.add').forEach(item => {
+        //         if (item.parentNode.querySelector(`[data-uid="${uid}"][data-key="${key}"]`)) {
+        //             item.classList.add("add_toggle")
+        //         } else {
+        //             item.classList.remove("add_toggle")
+        //         }
+        //     });
+        //     // 檢查是否為0, 並且居中
+        //     document.querySelectorAll(`[data-uid="${uid}"][data-key="${key}"].score-value`).forEach(item => {
+        //         checkscorezero();
+        //         // console.log(`[data-uid="${uid}"][data-key="${key}"].score-value`)
+        //         item.style.display = "flex"
+        //     });
+        //     // 檢查總分是否為零
+        //     checktotalzero();
+        // }
+
+        /**
+         * 全局监听事件隐藏修改控件
+         **/
+
+        // document.querySelector('body').addEventListener("click", (e) => {
+        //     // console.log(e.target.classList.contains('score-value'))
+        //     // if (!e.target.matches('.tb_cell')) {
+        //     //     // console.log(e.target)
+        //     //     document.querySelectorAll('.add').forEach(i => {
+        //     //         i.classList.remove('add_toggle');
+        //     //     })
+        //     //     document.querySelectorAll('.subtract').forEach(i => {
+        //     //         i.classList.remove('subtract_toggle');
+        //     //     })
+        //     // } else if (e.target.classList.contains('score-value')) {
+        //     //     console.log(e.target)
+        //     //     e.target.classList.add("add_toggle");
+        //     //     e.target.classList.add("subtract_toggle");
+        //     // }
+            
+        //     if (e.target.classList.contains('score-value')) {
+        //         checkscorezero();
+        //         // e.target.classList.add("add_toggle");
+        //         // e.target.classList.add("subtract_toggle");
+        //     } else if (!e.target.matches('.tb_cell')) {
+        //         checkscorezero();
+        //         checktotalzero();
+        //         document.querySelectorAll('.add').forEach(i => {
+        //             i.classList.remove('add_toggle');
+        //         })
+        //         document.querySelectorAll('.subtract').forEach(i => {
+        //             i.classList.remove('subtract_toggle');
+        //         })
+        //         document.querySelectorAll(`.score_cell`).forEach(i => {
+        //             i.classList.remove("score_cell_toggle");
+        //         })
+        //     }
+        // })
+
+        // 切換字體
+        document.getElementById("toggle_font").addEventListener("click", () => {
+            document.querySelector("body").classList.toggle("font_body");
+        })
+
+        // 打印事件
+        document.getElementById("print_btn").addEventListener("click", () => {
+            window.print();
+        })
+
+    </script>
+</body>
+</html>
