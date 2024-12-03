@@ -38,29 +38,34 @@
 
 `ip route show`
 
+# 2024.12.3 更新内容: 树莓派设置网卡优先级, 设置自启动程序
 
+修改dhcpcd.conf文件
+输入命令
+`sudo nano /etc/dhcpcd.conf`
 
-## 示例配置文件(linux持久化设置)
+在最后添加以下代码:
+interface wlan0
+metric 200
 
-编辑netplan配置文件(通常位于`/etc/netplan/`目录下, 以`.yaml`结尾:
+interface eth0
+metric 300
 
-`sudo nano /etc/netplan/01-netcfg.yaml`
+这里的metric指的是优先级, metric值越小, 优先级越大
 
-添加一下内容
+设置自启动程序
+在`/home/user/.config`创建autostart文件夹
 
-```yaml
-network:
-	version: 2
-	ethernets:
-		wlan0:
-			dhcp4: true
-			routes: 
-				- to: 10.0.0.0/24
-				via: 172.168.20.4
-				on-link: true
+输入内容
+
 ```
+[Desktop Entry]
+Type=Application
+Name=名称
+Exec=chromium-browser --kiosk "对应需要打开的url"
+```
+这里的需求是全屏打开某url页面
 
-### 应用配置
+重启生效
 
-`sudo netplan apply`
 
